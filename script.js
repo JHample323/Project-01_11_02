@@ -36,6 +36,7 @@ function stopSubmission(evt) {
     } else {
         evt.returnValue = false;
     }
+    getQuote();
 }
 
 // function to get quotes
@@ -60,22 +61,20 @@ function getQuote() {
 function displayData() {
     if (httpRequest.readyState === 4 && httpRequest.status === 200) {
         var stockResults = httpRequest.responseText;
+        var stockItems = JSON.parse(stockResults);
+
+
+        // Grabs data from stocks
+        document.getElementById("ticker").innerHTML = stockItems.symbol;
+        document.getElementById("openingPrice").innerHTML = stockItems.open;
+        document.getElementById("lastTrade").innerHTML = stockItems.latestPrice;
+        var date = new Date(stockItems.latestUpdate);
+        document.getElementById("lastTradeDT").innerHTML = date.toDateString() + "<br>" + date.toTimeString;
+        document.getElementById("change").innerHTML = (stockItems.latestPrice - stockItems.open).toFixed(2);
+        document.getElementById("range").innerHTML = "Low " + (stockItems.low * 1).toFixed(2) + "<br>High " + (stockItems.high * 1).toFixed(2);
+        document.getElementById("volume").innerHTML = (stockItems.latestVolume * 1).toLocaleString(2);
     }
 }
-
-var stockResults = httpRequest.responseText;
-var stockItems = JSON.parse(stockResults);
-
-
-// Grabs data from stocks
-document.getElementById("ticker").innerHTML = stockItems.symbol;
-document.getElementById("openingPrice").innerHTML = stockItems.open;
-document.getElementById("lastTrade").innerHTML = stockItems.latestPrice;
-var date = new Date(stockItems.latestUpdate);
-document.getElementById("lastTradeDT").innerHTML = date.toDateString() + "<br>" + date.toTimeString;
-document.getElementById("change").innerHTML = (stockItems.latestPrice - stockItems.open).toFixed(2);
-document.getElementById("range").innerHTML = "Low " + (stockItems.low * 1).toFixed(2) + "<br>High " + (stockItems.high * 1).toFixed(2);
-document.getElementById("volume").innerHTML = (stockItems.latestVolume * 1).toLocaleString(2);
 
 // function that formats the table
 function formatTable() {
@@ -88,11 +87,11 @@ function formatTable() {
 
 // set up temporary event handler
 var form = document.getElementsByTagName("form")[0];
-if (form.addEventListener) {
+if (window.addEventListener) {
     form.addEventListener("submit", stopSubmission, false);
-    window.addEventListener("onload", formatTable, false);
+    window.addEventListener("load", formatTable, false);
     window.addEventListener("load", getQuote, false);
-} else if (form.attachEvent) {
+} else if (window.attachEvent) {
     form.attachEvent("onsubmit", stopSubmission);
     window.attachEvent("onload", formatTable);
     window.attachEvent("onload", getQuote);
